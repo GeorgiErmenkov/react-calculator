@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { Container, Grid, Button, Paper, TextField, Typography } from '@material-ui/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Container, Grid, Button, Paper, Typography } from '@material-ui/core';
+import { useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -41,7 +41,6 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const c = useStyles();
-  const inputRef = useRef(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [prevValue, setPrevValue] = useState(null);
   const [symbol, setSymbol] = useState(null);
