@@ -9,15 +9,33 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 50
   },
   grid: {
-    backgroundColor: 'rgb(111,111,110,0.14)',
+    backgroundColor: 'rgb(111,111,110,0.2)',
+    borderColor: 'grey',
+    borderWidth: '0.1px',
+    borderRadius: 8,
+    border: 'double',
     '& .MuiGrid-item': {
       borderColor: 'grey',
       borderWidth: '0.1px',
-      border: 'double'
+      border: 'double',
+      borderRadius: 8,
     },
-    paper: {
-      backgroundColor: 'rgb(111,111,110,0.3)'
-    },
+  },
+  paper: {
+    backgroundColor: 'rgb(200,200,200,0.2)',
+    borderRadius: 8,
+  },
+  mainDisplay: {
+    height: 50,
+    display: 'flex',
+    alignItems: 'center',
+    padding: 10,
+  },
+  historyDisplay: {
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: 10,
   }
 }))
 
@@ -26,12 +44,22 @@ function App() {
   const inputRef = useRef(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [prevValue, setPrevValue] = useState(null);
-  const [symbol, setSymbol] = useState(null)
+  const [symbol, setSymbol] = useState(null);
+  const [wasClicked, setWasClicked] = useState(false);
 
   const helperFunctions = {
+    number: function (num) {
+      if (currentValue === 0) {
+        setCurrentValue(num)
+      } else {
+        setCurrentValue(prev => Number(`${prev}${num}`))
+      }
+    },
     AC: function () {
       setCurrentValue(0);
       setPrevValue(0);
+      setSymbol('');
+      setWasClicked(false);
     },
     plusMinus: function () {
       const value = currentValue * (-1);
@@ -42,30 +70,54 @@ function App() {
 
     },
     addition: function () {
-      setPrevValue(currentValue)
-      setSymbol('+')
+      if (!wasClicked) {
+        setPrevValue(currentValue)
+        setSymbol('+')
+        setWasClicked(true)
+      } else {
+        setPrevValue(prev => eval(`${prev}${symbol}${currentValue}`))
+        setSymbol('+')
+      }
       setCurrentValue(0)
     },
     multiplication: function () {
-      setPrevValue(currentValue)
-      setSymbol('*')
+      if (!wasClicked) {
+        setPrevValue(currentValue)
+        setSymbol('*')
+        setWasClicked(true)
+      } else {
+        setPrevValue(prev => eval(`${prev}${symbol}${currentValue}`))
+        setSymbol('*')
+      }
       setCurrentValue(0)
     },
     substraction: function () {
-      setPrevValue(currentValue)
-      setSymbol('-')
+      if (!wasClicked) {
+        setPrevValue(currentValue)
+        setSymbol('-')
+        setWasClicked(true)
+      } else {
+        setPrevValue(prev => eval(`${prev}${symbol}${currentValue}`))
+        setSymbol('-')
+      }
       setCurrentValue(0)
     },
     division: function () {
-      setPrevValue(currentValue)
-      setSymbol('/')
+      if (!wasClicked) {
+        setPrevValue(currentValue)
+        setSymbol('/')
+        setWasClicked(true)
+      } else {
+        setPrevValue(prev => eval(`${prev}${symbol}${currentValue}`))
+        setSymbol('/')
+      }
       setCurrentValue(0)
     },
     dot: function () {
-        const str = String(currentValue)
-        if (str.match(/\./g) === null) {
-          setCurrentValue(prev => `${prev}.`)
-        }
+      const str = String(currentValue)
+      if (str.match(/\./g) === null) {
+        setCurrentValue(prev => `${prev}.`)
+      }
     },
     equal: function () {
       switch (symbol) {
@@ -73,21 +125,25 @@ function App() {
           setCurrentValue(prev => prevValue + prev)
           setSymbol('')
           setPrevValue(currentValue)
+          setWasClicked(false)
           break;
         case '-':
           setCurrentValue(prev => prevValue - prev)
           setSymbol('')
           setPrevValue(currentValue)
+          setWasClicked(false)
           break;
         case '/':
           setCurrentValue(prev => prevValue / prev)
           setSymbol('')
           setPrevValue(currentValue)
+          setWasClicked(false)
           break;
         case '*':
           setCurrentValue(prev => prevValue * prev)
           setSymbol('')
           setPrevValue(currentValue)
+          setWasClicked(false)
           break;
         default:
           setPrevValue(currentValue)
@@ -97,157 +153,117 @@ function App() {
 
   console.log(currentValue);
   return (
-    <div>
-      <Container className={c.container}>
-        <Typography gutterBottom variant='h6'>Previous:{prevValue}{symbol}</Typography>
-        <Paper elevation={8} className={c.paper}>
+    <Container className={c.container}>
+        <Paper elevation={10} className={c.paper}>
           <Grid container direction='row' alignItems='center' justify='center' className={c.grid}>
-            <Grid item xs={12}>
-              <TextField id="outlined-basic" variant="outlined" fullWidth ref={inputRef} value={currentValue} />
+            <Grid item xs={12} className={c.historyDisplay}>
+              <Typography variant='subtitle2' color='secondary'>Previous:{prevValue}{symbol}</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} className={c.mainDisplay}>
+              <Typography variant='h5'>{currentValue}</Typography>
+            </Grid>
+            <Grid item xs={12} style={{ border: 'hidden'}}>
               <Grid container alignItems='center' justify='center' className={c.grid}>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.AC}>
-                    AC
+                    <b>AC</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.plusMinus}>
-                    +/-
+                    <b>+/-</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3} >
                   <Button onClick={helperFunctions.percentage}>
-                    %
+                    <b>%</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.division}>
-                    \
+                    <b>/</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(7) :
-                      setCurrentValue(prev => Number(`${prev}7`))
-                  }}>
-                    7
+                  <Button onClick={() => { helperFunctions.number(7)} }>
+                    <b>7</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(8) :
-                      setCurrentValue(prev => Number(`${prev}8`))
-                  }}>
-                    8
+                <Button onClick={() => { helperFunctions.number(8)} }>
+                    <b>8</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(9) :
-                      setCurrentValue(prev => Number(`${prev}9`))
-                  }}>
-                    9
+                <Button onClick={() => { helperFunctions.number(9)} }>
+                    <b>9</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.multiplication}>
-                    x
+                    <b>x</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(4) :
-                      setCurrentValue(prev => Number(`${prev}4`))
-                  }}>
-                    4
+                <Button onClick={() => { helperFunctions.number(4)} }>
+                    <b>4</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(5) :
-                      setCurrentValue(prev => Number(`${prev}5`))
-                  }}>
-                    5
+                <Button onClick={() => { helperFunctions.number(5)} }>
+                    <b>5</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(6) :
-                      setCurrentValue(prev => Number(`${prev}6`))
-                  }}>
-                    6
+                <Button onClick={() => { helperFunctions.number(6)} }>
+                    <b>6</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.substraction}>
-                    -
+                    <b>-</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(1) :
-                      setCurrentValue(prev => Number(`${prev}1`))
-                  }}>
-                    1
+                <Button onClick={() => { helperFunctions.number(1)} }>
+                    <b>1</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(2) :
-                      setCurrentValue(prev => Number(`${prev}2`))
-                  }}>
-                    2
+                <Button onClick={() => { helperFunctions.number(2)} }>
+                    <b>2</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
-                  <Button onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(3) :
-                      setCurrentValue(prev => Number(`${prev}3`))
-                  }}>
-                    3
+                <Button onClick={() => { helperFunctions.number(3)} }>
+                    <b>3</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.addition}>
-                    +
+                    <b>+</b>
                   </Button>
                 </Grid>
                 <Grid item xs={6} style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button style={{ width: '100%' }} onClick={() => {
-                    currentValue === 0 ?
-                      setCurrentValue(0) :
-                      setCurrentValue(prev => Number(`${prev}0`))
-                  }}>
-                    0
+                <Button onClick={() => { helperFunctions.number(0)} }>
+                    <b>0</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.dot}>
-                    ,
+                    <b>,</b>
                   </Button>
                 </Grid>
                 <Grid item xs={3}>
                   <Button onClick={helperFunctions.equal}>
-                    =
+                    <b>=</b>
                   </Button>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Paper>
-      </Container>
-    </div>
+    </Container>
   );
 }
 
