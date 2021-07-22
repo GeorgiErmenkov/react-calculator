@@ -244,7 +244,7 @@ function App() {
                   </Button>
                 </Grid>
                 <Grid item xs={6} style={{ display: 'flex', justifyContent: 'center' }}>
-                <Button onClick={() => { helperFunctions.number(0)} }>
+                <Button onClick={() => { helperFunctions.number(0)} } style={{ width: '100%'}}>
                     <b>0</b>
                   </Button>
                 </Grid>
